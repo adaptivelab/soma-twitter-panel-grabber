@@ -4,7 +4,9 @@ Connect to twitter
 
 from __future__ import unicode_literals, print_function
 
-import oauth2 as oauth
+from functools import partial
+import requests
+from requests.auth import OAuth1
 
 
 # twitter oauth details 
@@ -16,11 +18,9 @@ ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token"
 ACCESS_TOKEN = "user token"
 ACCESS_TOKEN_SECRET = "user secret"
 
-def client():
-    """
-    Create an oauth client object to access resources
-    """
+auth = OAuth1(client_key=CONSUMER_KEY, client_secret=CONSUMER_SECRET,
+    resource_owner_key=ACCESS_TOKEN, resource_owner_secret=ACCESS_TOKEN_SECRET,
+    signature_type='query')
 
-    consumer = oauth.Consumer(key=CONSUMER_KEY, secret=CONSUMER_SECRET)
-    access_token = oauth.Token(key=ACCESS_TOKEN, secret=ACCESS_TOKEN_SECRET)
-    return oauth.Client(consumer, access_token)
+get = partial(requests.get, auth=auth)
+post = partial(requests.post, auth=auth)
