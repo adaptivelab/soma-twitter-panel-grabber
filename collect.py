@@ -15,7 +15,9 @@ import source
 import client
 
 
-class UnexpectedError(Exception): pass
+
+class UnexpectedError(Exception):
+    pass
 
 
 class RedisStorage(object):
