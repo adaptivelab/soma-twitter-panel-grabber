@@ -9,10 +9,13 @@ import multiprocessing
 from collections import defaultdict
 from urlparse import urlparse
 from os.path import splitext
-from time import time
+import time
 
 import source
 import client
+
+
+class UnexpectedError(Exception): pass
 
 
 class RedisStorage(object):
@@ -38,7 +41,7 @@ def wait_time(client, resource_uri):
     info = client.get(ratelimit_uri, params={'resources': group})
     timestamp = info.json['resources'][group]["/%s/%s" % (group, method)]['reset']
     # add 1 second to account for fractions of a second which are not returned in timestamp
-    return timestamp - int(time()) + 1
+    return timestamp - int(time.time()) + 1
 
 
 def fetch(client, twitter_handles, storage):
@@ -64,11 +67,10 @@ def fetch_profiles(client, twitter_handles, storage):
             for profile in response.json:
                 storage.store_profile(profile)
         elif response.status_code == 429:
-            # rate limiting
-            # need to sleep
-            pass
+            # rate limiting, need to sleep
+            time.sleep(wait_time(client, lookup_uri))
         else:
-            pass
+            raise UnexpectedError(response.error)
 
 
 def fetch_followers(twitter_id):
