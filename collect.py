@@ -6,6 +6,7 @@ from __future__ import unicode_literals, print_function
 
 import sys
 import multiprocessing
+import logging
 from collections import defaultdict
 from urlparse import urlparse
 from os.path import splitext
@@ -14,6 +15,10 @@ import time
 import source
 import client
 
+logger = logging.getLogger('wood_panelling')
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 
 
 class UnexpectedError(Exception):
@@ -68,9 +73,12 @@ def fetch_profiles(client, twitter_handles, storage):
             del twitter_handles[:size_limit]
             for profile in response.json:
                 storage.store_profile(profile)
+            logger.debug("fetched 100 profiles, %d left" % len(screen_names))
         elif response.status_code == 429:
             # rate limiting, need to sleep
-            time.sleep(wait_time(client, lookup_uri))
+            delay = wait_time(client, lookup_uri)
+            logger.info("rate limit for users/lookup (delay: %s)" % delay)
+            time.sleep(wait_time)
         else:
             raise UnexpectedError(response.error)
 
