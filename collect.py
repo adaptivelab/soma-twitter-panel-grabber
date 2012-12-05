@@ -35,10 +35,10 @@ class RedisStorage(object):
     def store_profile(self, profile):
         pass
 
-    def store_followers(self, follower_list):
+    def store_followers(self, screen_name, follower_list):
         pass
 
-    def store_friends(self, friends_list):
+    def store_friends(self, screen_name, friends_list):
         pass
 
 
@@ -51,14 +51,13 @@ def wait_time(client, resource_uri):
     return timestamp - int(time.time()) + 1
 
 
-def fetch(client, twitter_handles, storage):
-    print(",".join(twitter_handles))
+def fetch(client, screen_names, storage):
     pass
 
 
-def fetch_profiles(client, twitter_handles, storage):
+def fetch_profiles(client, screen_names, storage):
     """
-    Fetch twitter profile information for twitter_handles and add them to storage
+    Fetch twitter profile information for screen_names and add them to storage
 
     Can request 100 profiles per request and 180 requests per 15mins
     """
@@ -66,11 +65,11 @@ def fetch_profiles(client, twitter_handles, storage):
     lookup_uri = "https://api.twitter.com/1.1/users/lookup.json"
     size_limit = 100
 
-    while twitter_handles:
-        clump = twitter_handles[:size_limit]
+    while screen_names:
+        clump = screen_names[:size_limit]
         response = client.get(lookup_uri, params={'screen_name': ",".join(clump)})
         if response.status_code == 200:
-            del twitter_handles[:size_limit]
+            del screen_names[:size_limit]
             for profile in response.json:
                 storage.store_profile(profile)
             logger.debug("fetched 100 profiles, %d left" % len(screen_names))
@@ -83,11 +82,11 @@ def fetch_profiles(client, twitter_handles, storage):
             raise UnexpectedError(response.error)
 
 
-def fetch_followers(twitter_id):
+def fetch_followers(screen_names):
     pass
 
 
-def fetch_friends(twitter_id):
+def fetch_friends(screen_names):
     pass
 
 
@@ -98,6 +97,6 @@ if __name__ == "__main__":
         print("Usage: {} filename".format(sys.argv[0]))
         sys.exit(1)
 
-    twitter_handles = source.load_source(filename)
+    screen_names = source.load_source(filename)
     storage = RedisStorage()
-    fetch(client, twitter_handles, storage)
+    fetch(client, screen_names, storage)
