@@ -2,7 +2,6 @@ from __future__ import unicode_literals, print_function
 
 import time
 from flexmock import flexmock
-
 from nose.tools import *
 
 import collect
@@ -21,9 +20,8 @@ def test_collection_of_profile_information():
     collect.fetch_profiles(client, ['alice', 'bob'], storage)
 
 
-def test_sleep_until_reset_calculation():
-    reset_time = int(time.time()) + 4*60 
-    time.sleep(2)
+def test_sleep_until_reset_calculation_adds_one_second():
+    reset_time = int(time.time()) + 4*60
     info = {
         'resources': {
             'users': {
@@ -33,4 +31,4 @@ def test_sleep_until_reset_calculation():
     }
     client = flexmock()
     client.should_receive('get').and_return(flexmock(status_code=200, json=info))
-    assert_equal(4*60, collect.wait_time(client, 'https://api.twiter.com/1.1/users/lookup.json'))
+    assert_equal(4*60 + 1, collect.wait_time(client, 'https://api.twiter.com/1.1/users/lookup.json'))

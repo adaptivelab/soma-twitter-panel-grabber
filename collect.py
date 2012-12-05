@@ -37,7 +37,8 @@ def wait_time(client, resource_uri):
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = client.get(ratelimit_uri, params={'resources': group})
     timestamp = info.json['resources'][group]["/%s/%s" % (group, method)]['reset']
-    return int(timestamp - time())
+    # add 1 second to account for fractions of a second which are not returned in timestamp
+    return timestamp - int(time()) + 1
 
 
 def fetch(client, twitter_handles, storage):
