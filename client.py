@@ -9,7 +9,7 @@ import requests
 from requests.auth import OAuth1
 
 
-# twitter oauth details 
+# twitter oauth details
 CONSUMER_KEY = "client key"
 CONSUMER_SECRET = "client secret"
 REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token"
