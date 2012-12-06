@@ -21,6 +21,10 @@ handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
 
+def twitter_uri(group, method):
+    return "https://api.twitter.com/1.1/{}/{}.json".format(group, method)
+
+
 class UnexpectedError(Exception):
     pass
 
@@ -43,7 +47,7 @@ class RedisStorage(object):
 
 
 def wait_time(client, resource_uri):
-    ratelimit_uri = "https://api.twitter.com/1.1/application/rate_limit_status.json"
+    ratelimit_uri = twitter_uri('application', 'rate_limit_status')
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = client.get(ratelimit_uri, params={'resources': group})
     timestamp = info.json['resources'][group]["/%s/%s" % (group, method)]['reset']
@@ -68,7 +72,7 @@ def fetch_profiles(client, screen_names, storage):
     Can request 100 profiles per request and 180 requests per 15mins
     """
 
-    lookup_uri = "https://api.twitter.com/1.1/users/lookup.json"
+    lookup_uri = twitter_uri('users', 'lookup')
     size_limit = 100
 
     while screen_names:
@@ -95,7 +99,7 @@ def fetch_followers_for(screen_name, client, storage):
     Fetch followers for a twitter profile
     """
 
-    followers_uri = "https://api.twitter.com/1.1/followers/ids.json"
+    followers_uri = twitter_uri('followers', 'ids')
     cursor = -1
     followers = []
     while True:
