@@ -4,7 +4,6 @@ Connect to twitter
 
 from __future__ import unicode_literals, print_function
 
-import ConfigParser as configparser
 import time
 import logging
 import random
@@ -14,21 +13,15 @@ from os.path import splitext
 import requests
 from requests.auth import OAuth1
 
+import config
+
 
 logger = logging.getLogger('wood_panelling')
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-
-def twitter_config(key):
-    return config.get('twitter', key).decode('utf-8')
-
-
-auth = OAuth1(client_key=twitter_config('consumer_key'),
-    client_secret=twitter_config('consumer_secret'),
-    resource_owner_key=twitter_config('access_token'),
-    resource_owner_secret=twitter_config('access_token_secret'),
+auth = OAuth1(client_key=config.twitter('consumer_key'),
+    client_secret=config.twitter('consumer_secret'),
+    resource_owner_key=config.twitter('access_token'),
+    resource_owner_secret=config.twitter('access_token_secret'),
     signature_type='query')
 
 get = partial(requests.get, auth=auth)

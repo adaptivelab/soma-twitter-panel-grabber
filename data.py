@@ -6,6 +6,8 @@ from __future__ import unicode_literals, print_function
 
 import logging
 
+import config
+
 
 logger = logging.getLogger('wood_panelling')
 
