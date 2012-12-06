@@ -144,7 +144,7 @@ def rate_limited(response):
     Response is rate limited"
     """
 
-    return response.status_code in [420, 429, 500, 503, 504]
+    return response.status_code in [420, 429, 500, 502, 503, 504]
 
 
 if __name__ == "__main__":
