@@ -33,6 +33,7 @@ class RedisStorage(object):
         logger.info('storing {}'.format(key))
         self.db[key] = json.dumps(profile)
         self.db[date_key] = time.time()
+        self.db.sadd('profiles', profile['screen_name'])
 
     def store_followers(self, screen_name, follower_list):
         key = self.key_for('followers', screen_name)
