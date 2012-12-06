@@ -51,6 +51,12 @@ def wait_time(client, resource_uri):
     return timestamp - int(time.time()) + 1
 
 
+def wait_for(client, resource_uri):
+    delay = wait_time(client, resource_uri)
+    logger.info("rate limit for {} (delay: {})".format(resource_uri, delay))
+    time.sleep(delay)
+
+
 def fetch(client, screen_names, storage):
     pass
 
@@ -75,9 +81,7 @@ def fetch_profiles(client, screen_names, storage):
             logger.debug("fetched 100 profiles, %d left" % len(screen_names))
         elif rate_limited(response):
             # rate limiting, need to sleep
-            delay = wait_time(client, lookup_uri)
-            logger.info("rate limit for users/lookup (delay: %s)" % delay)
-            time.sleep(wait_time)
+            wait_for(client, lookup_uri)
         else:
             raise UnexpectedError(response.status_code, response.text)
 
