@@ -8,19 +8,13 @@ from __future__ import unicode_literals, print_function
 import sys
 import multiprocessing
 import logging
-import random
 from collections import defaultdict
-from urlparse import urlparse
-from os.path import splitext
 import time
 
 import source
 import client
 
 logger = logging.getLogger('wood_panelling')
-handler = logging.StreamHandler(sys.stdout)
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
 
 
 def twitter_uri(group, method):
@@ -54,38 +48,9 @@ class RedisStorage(object):
         pass
 
 
-def wait_time(client, resource_uri):
-    """
-    Find out how long we need to wait before accessing a certain api endpoint
-    """
-
-    ratelimit_uri = twitter_uri('application', 'rate_limit_status')
-    group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
-    info = client.get(ratelimit_uri, params={'resources': group})
-    endpoint = "/%s/%s" % (group, method)
-    timestamp = info.json['resources'][group][endpoint]['reset']
-    # add 1 second to account for fractions of a
-    # second which are not returned in timestamp
-    return timestamp - int(time.time()) + 1
 
 
-def wait_for(client, resource_uri):
-    """
-    Wait for long enough so we can access this api endpoint again
-    """
 
-    delay = wait_time(client, resource_uri)
-    logger.info("rate limit for {} (delay: {})".format(resource_uri, delay))
-    time.sleep(delay)
-
-
-def enhance_my_calm():
-    """
-    Wait a little bit to not hammer twitter i.e. reduce the chance of being
-    banned as a robot
-    """
-
-    time.sleep(random.uniform(1, 5))
 
 
 def fetch(client, screen_names, storage):
@@ -123,10 +88,10 @@ def fetch_profiles(client, screen_names, storage):
             logger.debug("fetched 100 profiles, %d left" % len(screen_names))
         elif rate_limited(response):
             # rate limiting, need to sleep
-            wait_for(client, lookup_uri)
+            client.wait_for(lookup_uri)
         else:
             raise UnexpectedError(response.status_code, response.text)
-        enhance_my_calm()
+        client.enhance_my_calm()
 
 
 def fetch_followers(client, screen_names, storage):
@@ -184,10 +149,10 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
             if cursor == 0:
                 break
         elif rate_limited(response):
-            wait_for(client, resource_uri)
+            client.wait_for(resource_uri)
         else:
             raise UnexpectedError(response.status_code, response.text)
-        enhance_my_calm()
+        client.enhance_my_calm()
     storage_func(screen_name, result)
 
 
@@ -208,6 +173,9 @@ def rate_limited(response):
 
 
 if __name__ == "__main__":
+    handler = logging.StreamHandler(sys.stdout)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
     try:
         filename = sys.argv[1]
     except IndexError:

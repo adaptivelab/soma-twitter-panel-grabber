@@ -5,19 +5,19 @@ from flexmock import flexmock
 from nose.tools import *
 
 import collect
+import client
 
 
-def nowaits():
-    flexmock(collect, enhance_my_calm=lambda: None)
+def client_mock():
+    return flexmock(client, enhance_my_calm=lambda: None)
 
 
-@with_setup(nowaits)
 def test_collection_of_profile_information():
     user_lookup = [
         {'id': '1234', 'screen_name': 'alice'},
         {'id': '4321', 'screen_name': 'bob'}
     ]
-    client = flexmock()
+    client = client_mock()
     client.should_receive('get').and_return(
         flexmock(status_code=200, json=user_lookup))
     storage = flexmock()
@@ -26,7 +26,6 @@ def test_collection_of_profile_information():
     collect.fetch_profiles(client, ['alice', 'bob'], storage)
 
 
-@with_setup(nowaits)
 def test_sleep_until_reset_calculation_adds_one_second():
     reset_time = int(time.time()) + (4 * 60)
     info = {
@@ -36,15 +35,13 @@ def test_sleep_until_reset_calculation_adds_one_second():
             }
         }
     }
-    client = flexmock()
-    client.should_receive('get').and_return(
+    c = flexmock(client)
+    c.should_receive('get').and_return(
         flexmock(status_code=200, json=info))
     assert_equal((4 * 60) + 1,
-        collect.wait_time(client,
-            'https://api.twiter.com/1.1/users/lookup.json'))
+        c.wait_time('https://api.twiter.com/1.1/users/lookup.json'))
 
 
-@with_setup(nowaits)
 def test_429_response_causes_a_wait():
     reset_time = int(time.time()) + 10
     rate_info = {
@@ -56,7 +53,7 @@ def test_429_response_causes_a_wait():
     }
     user_info = [{'id': '1234', 'screen_name': 'test'}]
 
-    client = flexmock()
+    client = client_mock()
     storage = flexmock()
     storage.should_receive('store_profile').with_args(user_info[0])
 
@@ -72,11 +69,10 @@ def test_429_response_causes_a_wait():
     collect.fetch_profiles(client, ['test'], storage)
 
 
-@with_setup(nowaits)
 def test_fetching_followers_paginates():
     followers = range(100)
     screen_name = 'test_user'
-    client = flexmock()
+    client = client_mock()
     storage = flexmock()
     first_set = {'ids': followers[:50], 'next_cursor': 50}
     second_set = {'ids': followers[50:], 'next_cursor': 0}
@@ -90,11 +86,10 @@ def test_fetching_followers_paginates():
     collect.fetch_followers_for(screen_name, client, storage)
 
 
-@with_setup(nowaits)
 def test_fetching_friends_paginates():
     friends = range(100)
     screen_name = 'test_user'
-    client = flexmock()
+    client = client_mock()
     storage = flexmock()
     first_set = {'ids': friends[:50], 'next_cursor': 50}
     second_set = {'ids': friends[50:], 'next_cursor': 0}
