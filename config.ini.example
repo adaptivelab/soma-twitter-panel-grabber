@@ -3,3 +3,8 @@ consumer_key = client key value
 consumer_secret = client secret value
 access_token = token
 access_token_secret = token secret
+
+[redis]
+host = localhost
+port = 6379
+db = 0
