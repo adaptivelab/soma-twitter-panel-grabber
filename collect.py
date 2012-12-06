@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Update a SoMA panel from a source file of panelists
 """
@@ -23,11 +24,17 @@ logger.addHandler(handler)
 
 
 def twitter_uri(group, method):
+    """
+    Get full uri for api endpoint
+    """
+
     return "https://api.twitter.com/1.1/{}/{}.json".format(group, method)
 
 
 class UnexpectedError(Exception):
-    pass
+    """
+    Well that was interesting…
+    """
 
 
 class RedisStorage(object):
@@ -48,6 +55,10 @@ class RedisStorage(object):
 
 
 def wait_time(client, resource_uri):
+    """
+    Find out how long we need to wait before accessing a certain api endpoint
+    """
+
     ratelimit_uri = twitter_uri('application', 'rate_limit_status')
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = client.get(ratelimit_uri, params={'resources': group})
@@ -59,17 +70,29 @@ def wait_time(client, resource_uri):
 
 
 def wait_for(client, resource_uri):
+    """
+    Wait for long enough so we can access this api endpoint again
+    """
+
     delay = wait_time(client, resource_uri)
     logger.info("rate limit for {} (delay: {})".format(resource_uri, delay))
     time.sleep(delay)
 
 
 def enhance_my_calm():
+    """
+    Wait a little bit to not hammer twitter i.e. reduce the chance of being
+    banned as a robot
+    """
+
     time.sleep(random.uniform(1, 5))
 
 
 def fetch(client, screen_names, storage):
-    pass
+    """
+    Set up and run separate processes for fetching each of:
+    profiles, followers and friends adding them to the storage object
+    """
 
 
 def fetch_profiles(client, screen_names, storage):
@@ -99,8 +122,10 @@ def fetch_profiles(client, screen_names, storage):
         enhance_my_calm()
 
 
-def fetch_followers(client, screen_names):
-    pass
+def fetch_followers(client, screen_names, storage):
+    """
+    Fetch followers for all screen_names and store in storage object
+    """
 
 
 def fetch_followers_for(screen_name, client, storage):
@@ -113,17 +138,28 @@ def fetch_followers_for(screen_name, client, storage):
         storage.store_followers)
 
 
-def fetch_friends(screen_names):
-    pass
+def fetch_friends(client, screen_names, storage):
+    """
+    Fetch friends for all screen_names and store in storage_object
+    """
 
 
 def fetch_friends_for(screen_name, client, storage):
+    """
+    Fetch friends for a twitter profile
+    """
+
     friends_uri = twitter_uri('friends', 'ids')
     fetch_cursored_collection(client, screen_name, friends_uri,
         storage.store_friends)
 
 
 def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
+    """
+    Fetch each page of friends/followers collections for a screen name
+    adding the resulting list by calling storage_func(screen_name, result)
+    """
+
     cursor = -1
     result = []
     while True:
@@ -143,10 +179,18 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
 
 
 def ok(response):
+    """
+    Response is good
+    """
+
     return response.status_code == 200
 
 
 def rate_limited(response):
+    """
+    Response is rate limited"
+    """
+
     return response.status_code == 429
 
 
