@@ -48,9 +48,16 @@ class RedisStorage(object):
         pass
 
 
+class LoggingStorage(object):
 
+    def store_profile(self, profile):
+        logger.info("storing profile: {}".format(profile['screen_name']))
 
+    def store_followers(self, screen_name, follower_list):
+        logger.info("{} is followed by {}".format(screen_name, follower_list))
 
+    def store_friends(self, screen_name, friends_list):
+        logger.info("{} is friends with {}".format(screen_name, friends_list))
 
 
 def fetch(client, screen_names, storage):
@@ -63,8 +70,10 @@ def fetch(client, screen_names, storage):
     profiles = multiprocessing.Process(target=fetch_profiles, args=args)
     followers = multiprocessing.Process(target=fetch_followers, args=args)
     friends = multiprocessing.Process(target=fetch_friends, args=args)
+    logger.info("starting collection")
     [p.start() for p in [profiles, followers, friends]]
     [p.join() for p in [profiles, followers, friends]]
+    logger.info("finished collection")
 
 
 def fetch_profiles(client, screen_names, storage):
@@ -183,5 +192,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     screen_names = source.load_source(filename)
-    storage = RedisStorage()
+    logger.info("starting with: {}".format(",".join(screen_names)))
+    #storage = RedisStorage()
+    storage = LoggingStorage()
     fetch(client, screen_names, storage)
