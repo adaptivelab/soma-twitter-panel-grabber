@@ -81,3 +81,19 @@ def test_fetching_followers_paginates():
     storage.should_receive('store_followers').with_args(screen_name, followers)
     collect.fetch_followers_for(screen_name, client, storage)
 
+
+def test_fetching_friends_paginates():
+    friends = range(100)
+    screen_name = 'test_user'
+    client = flexmock()
+    storage = flexmock()
+    first_set = {'ids': friends[:50], 'next_cursor': 50}
+    second_set = {'ids': friends[50:], 'next_cursor': 0}
+
+    client.should_receive('get').and_return(
+        flexmock(status_code=200, json=first_set)
+    ).and_return(
+        flexmock(status_code=200, json=second_set)
+    )
+    storage.should_receive('store_friends').with_args(screen_name, friends)
+    collect.fetch_friends_for(screen_name, client, storage)

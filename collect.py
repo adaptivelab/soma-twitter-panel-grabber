@@ -103,25 +103,36 @@ def fetch_followers_for(screen_name, client, storage):
     """
 
     followers_uri = twitter_uri('followers', 'ids')
-    cursor = -1
-    followers = []
-    while True:
-        response = client.get(followers_uri, params={'screen_name': screen_name,
-            'cursor': cursor})
-        if ok(response):
-            followers.extend(response.json['ids'])
-            cursor = response.json['next_cursor']
-            if cursor == 0:
-                break
-        elif rate_limited(response):
-            wait_for(client, followers_uri)
-        else:
-            raise UnexpectedError(response.status_code, response.text)
-    storage.store_followers(screen_name, followers)
+    fetch_cursored_collection(client, screen_name, followers_uri,
+        storage.store_followers)
 
 
 def fetch_friends(screen_names):
     pass
+
+
+def fetch_friends_for(screen_name, client, storage):
+    friends_uri = twitter_uri('friends', 'ids')
+    fetch_cursored_collection(client, screen_name, friends_uri,
+        storage.store_friends)
+
+
+def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
+    cursor = -1
+    result = []
+    while True:
+        response = client.get(resource_uri, params={'screen_name': screen_name,
+            'cursor': cursor})
+        if ok(response):
+            result.extend(response.json['ids'])
+            cursor = response.json['next_cursor']
+            if cursor == 0:
+                break
+        elif rate_limited(response):
+            wait_for(client, resource_uri)
+        else:
+            raise UnexpectedError(response.status_code, response.text)
+    storage_func(screen_name, result)
 
 
 def ok(response):
