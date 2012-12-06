@@ -63,12 +63,13 @@ def wait_for(client, resource_uri):
     logger.info("rate limit for {} (delay: {})".format(resource_uri, delay))
     time.sleep(delay)
 
+
 def enhance_my_calm():
-    time.sleep(random.uniform(1,5))
+    time.sleep(random.uniform(1, 5))
+
 
 def fetch(client, screen_names, storage):
     pass
-
 
 
 def fetch_profiles(client, screen_names, storage):

@@ -6,6 +6,7 @@ from nose.tools import *
 
 import collect
 
+
 def nowaits():
     flexmock(collect, enhance_my_calm=lambda: None)
 
