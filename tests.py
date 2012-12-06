@@ -39,7 +39,7 @@ def test_sleep_until_reset_calculation_adds_one_second():
 
 
 def test_429_response_causes_a_wait():
-    reset_time = int(time.time()) + 1
+    reset_time = int(time.time()) + 10
     rate_info = {
         'resources': {
             'users': {
@@ -51,7 +51,7 @@ def test_429_response_causes_a_wait():
 
     client = flexmock()
     storage = flexmock()
-    storage.should_receive('store_profile')
+    storage.should_receive('store_profile').with_args(user_info[0])
 
     client.should_receive('get').and_return(
         flexmock(status_code=429)
@@ -60,4 +60,5 @@ def test_429_response_causes_a_wait():
     ).and_return(
         flexmock(status_code=200, json=user_info)
     )
+    flexmock(time).should_receive('sleep').with_args(11) # one extra second than reset time
     collect.fetch_profiles(client, ['test'], storage)
