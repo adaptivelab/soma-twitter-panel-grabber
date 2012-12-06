@@ -83,7 +83,7 @@ def test_fetching_followers_paginates():
         flexmock(status_code=200, json=second_set)
     )
     storage.should_receive('store_followers').with_args(screen_name, followers)
-    collect.fetch_followers_for(screen_name, client, storage)
+    collect.fetch_followers(client, [screen_name], storage)
 
 
 def test_fetching_friends_paginates():
@@ -100,4 +100,4 @@ def test_fetching_friends_paginates():
         flexmock(status_code=200, json=second_set)
     )
     storage.should_receive('store_friends').with_args(screen_name, friends)
-    collect.fetch_friends_for(screen_name, client, storage)
+    collect.fetch_friends(client, [screen_name], storage)
