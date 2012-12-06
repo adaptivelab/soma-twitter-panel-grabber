@@ -60,7 +60,8 @@ def test_429_response_causes_a_wait():
     ).and_return(
         flexmock(status_code=200, json=user_info)
     )
-    flexmock(time).should_receive('sleep').with_args(11) # one extra second than reset time
+    # one extra second than reset time
+    flexmock(time).should_receive('sleep').with_args(11)
     collect.fetch_profiles(client, ['test'], storage)
 
 

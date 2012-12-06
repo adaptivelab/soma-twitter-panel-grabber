@@ -50,8 +50,10 @@ def wait_time(client, resource_uri):
     ratelimit_uri = twitter_uri('application', 'rate_limit_status')
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = client.get(ratelimit_uri, params={'resources': group})
-    timestamp = info.json['resources'][group]["/%s/%s" % (group, method)]['reset']
-    # add 1 second to account for fractions of a second which are not returned in timestamp
+    endpoint = "/%s/%s" % (group, method)
+    timestamp = info.json['resources'][group][endpoint]['reset']
+    # add 1 second to account for fractions of a
+    # second which are not returned in timestamp
     return timestamp - int(time.time()) + 1
 
 
@@ -77,7 +79,8 @@ def fetch_profiles(client, screen_names, storage):
 
     while screen_names:
         clump = screen_names[:size_limit]
-        response = client.get(lookup_uri, params={'screen_name': ",".join(clump)})
+        response = client.get(lookup_uri,
+            params={'screen_name': ",".join(clump)})
         if ok(response):
             del screen_names[:size_limit]
             for profile in response.json:
@@ -123,6 +126,7 @@ def fetch_friends(screen_names):
 
 def ok(response):
     return response.status_code == 200
+
 
 def rate_limited(response):
     return response.status_code == 429
