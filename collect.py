@@ -68,18 +68,18 @@ def fetch_profiles(client, screen_names, storage):
     while screen_names:
         clump = screen_names[:size_limit]
         response = client.get(lookup_uri, params={'screen_name': ",".join(clump)})
-        if response.status_code == 200:
+        if ok(response):
             del screen_names[:size_limit]
             for profile in response.json:
                 storage.store_profile(profile)
             logger.debug("fetched 100 profiles, %d left" % len(screen_names))
-        elif response.status_code == 429:
+        elif rate_limited(response):
             # rate limiting, need to sleep
             delay = wait_time(client, lookup_uri)
             logger.info("rate limit for users/lookup (delay: %s)" % delay)
             time.sleep(wait_time)
         else:
-            raise UnexpectedError(response.error)
+            raise UnexpectedError(response.status_code, response.text)
 
 
 def fetch_followers(screen_names):
@@ -88,6 +88,13 @@ def fetch_followers(screen_names):
 
 def fetch_friends(screen_names):
     pass
+
+
+def ok(response):
+    return response.status_code == 200
+
+def rate_limited(response):
+    return response.status_code == 429
 
 
 if __name__ == "__main__":
