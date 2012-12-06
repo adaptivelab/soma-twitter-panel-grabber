@@ -19,8 +19,8 @@ import client
 
 logger = logging.getLogger('wood_panelling')
 handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 
 def twitter_uri(group, method):
