@@ -64,7 +64,8 @@ def fetch_profiles(client, screen_names, storage):
             del screen_names[:size_limit]
             for profile in response.json:
                 storage.store_profile(profile)
-            logger.debug("fetched %d profiles, %d left" % (len(clump), len(screen_names)))
+            logger.debug("fetched {} profiles, {} left".format(len(clump),
+                len(screen_names)))
         elif rate_limited(response):
             # rate limiting, need to sleep
             client.wait_for(lookup_uri)
