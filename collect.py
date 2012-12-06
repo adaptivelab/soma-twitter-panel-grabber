@@ -80,7 +80,7 @@ def fetch_followers(client, screen_names, storage):
     """
 
     for screen_name in screen_names:
-        fetch_friends_for(screen_name, client, storage)
+        fetch_followers_for(screen_name, client, storage)
 
 
 def fetch_followers_for(screen_name, client, storage):
