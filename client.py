@@ -19,7 +19,12 @@ logger = logging.getLogger('wood_panelling')
 
 config = configparser.ConfigParser()
 config.read('config.ini')
-twitter_config = partial(config.get, 'twitter')
+
+
+def twitter_config(key):
+    return config.get('twitter', key).decode('utf-8')
+
+
 auth = OAuth1(client_key=twitter_config('consumer_key'),
     client_secret=twitter_config('consumer_secret'),
     resource_owner_key=twitter_config('access_token'),
