@@ -44,7 +44,7 @@ def wait_time(resource_uri):
     ratelimit_uri = twitter_uri('application', 'rate_limit_status')
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = get(ratelimit_uri, params={'resources': group})
-    endpoint = "/%s/%s" % (group, method)
+    endpoint = "/{}/{}".format(group, method)
     try:
         timestamp = info.json['resources'][group][endpoint]['reset']
         # add 1 second to account for fractions of a
