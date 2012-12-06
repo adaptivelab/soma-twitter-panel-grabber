@@ -7,6 +7,7 @@ from __future__ import unicode_literals, print_function
 import sys
 import multiprocessing
 import logging
+import random
 from collections import defaultdict
 from urlparse import urlparse
 from os.path import splitext
@@ -62,9 +63,12 @@ def wait_for(client, resource_uri):
     logger.info("rate limit for {} (delay: {})".format(resource_uri, delay))
     time.sleep(delay)
 
+def enhance_my_calm():
+    time.sleep(random.uniform(1,5))
 
 def fetch(client, screen_names, storage):
     pass
+
 
 
 def fetch_profiles(client, screen_names, storage):
@@ -91,6 +95,7 @@ def fetch_profiles(client, screen_names, storage):
             wait_for(client, lookup_uri)
         else:
             raise UnexpectedError(response.status_code, response.text)
+        enhance_my_calm()
 
 
 def fetch_followers(client, screen_names):
@@ -132,6 +137,7 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
             wait_for(client, resource_uri)
         else:
             raise UnexpectedError(response.status_code, response.text)
+        enhance_my_calm()
     storage_func(screen_name, result)
 
 

@@ -6,7 +6,11 @@ from nose.tools import *
 
 import collect
 
+def nowaits():
+    flexmock(collect, enhance_my_calm=lambda: None)
 
+
+@with_setup(nowaits)
 def test_collection_of_profile_information():
     user_lookup = [
         {'id': '1234', 'screen_name': 'alice'},
@@ -21,6 +25,7 @@ def test_collection_of_profile_information():
     collect.fetch_profiles(client, ['alice', 'bob'], storage)
 
 
+@with_setup(nowaits)
 def test_sleep_until_reset_calculation_adds_one_second():
     reset_time = int(time.time()) + (4 * 60)
     info = {
@@ -38,6 +43,7 @@ def test_sleep_until_reset_calculation_adds_one_second():
             'https://api.twiter.com/1.1/users/lookup.json'))
 
 
+@with_setup(nowaits)
 def test_429_response_causes_a_wait():
     reset_time = int(time.time()) + 10
     rate_info = {
@@ -65,6 +71,7 @@ def test_429_response_causes_a_wait():
     collect.fetch_profiles(client, ['test'], storage)
 
 
+@with_setup(nowaits)
 def test_fetching_followers_paginates():
     followers = range(100)
     screen_name = 'test_user'
@@ -82,6 +89,7 @@ def test_fetching_followers_paginates():
     collect.fetch_followers_for(screen_name, client, storage)
 
 
+@with_setup(nowaits)
 def test_fetching_friends_paginates():
     friends = range(100)
     screen_name = 'test_user'
