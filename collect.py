@@ -8,7 +8,6 @@ from __future__ import unicode_literals, print_function
 import sys
 import multiprocessing
 import logging
-from collections import defaultdict
 import time
 
 import client
