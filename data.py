@@ -4,7 +4,10 @@ For dealing with source data for decided which twitter accounts to scrape
 
 from __future__ import unicode_literals, print_function
 
+import time
+import redis
 import logging
+import json
 
 import config
 
@@ -15,18 +18,35 @@ logger = logging.getLogger('wood_panelling')
 class RedisStorage(object):
 
     def __init__(self):
-        self.id_map = {}
-        self.follower_map = defaultdict(list)
-        self.friends_map = defaultdict(list)
+        self.db = redis.StrictRedis(
+            host=config.redis('host'),
+            port=config.redisint('port'),
+            db=config.redisint('db')
+        )
+
+    def key_for(self, *args):
+        return ':'.join(args)
 
     def store_profile(self, profile):
-        pass
+        key = self.key_for('profile', profile['screen_name'])
+        date_key = self.key_for(key, 'last-fetched')
+        logger.info('storing {}'.format(key))
+        self.db[key] = json.dumps(profile)
+        self.db[date_key] = time.time()
 
     def store_followers(self, screen_name, follower_list):
-        pass
+        key = self.key_for('followers', screen_name)
+        date_key = self.key_for(key, 'last-fetched')
+        logger.info('storing {} items in {}'.format(len(follower_list), key))
+        self.db.rpush(key, *follower_list)
+        self.db[date_key] = time.time()
 
     def store_friends(self, screen_name, friends_list):
-        pass
+        key = self.key_for('friends', screen_name)
+        date_key = self.key_for(key, 'last-fetched')
+        logger.info('storing {} items in {}'.format(len(friends_list), key))
+        self.db.rpush(key, *friends_list)
+        self.db[date_key] = time.time()
 
 
 class LoggingStorage(object):

@@ -124,10 +124,13 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
         response = client.get(resource_uri, params={'screen_name': screen_name,
             'cursor': cursor})
         if ok(response):
+            logger.debug('fetched {} ids from {}'.format(
+                len(response.json['ids']), resource_uri))
             result.extend(response.json['ids'])
             cursor = response.json['next_cursor']
             if cursor == 0:
                 break
+            logger.debug('next cursor {}'.format(cursor))
         elif rate_limited(response):
             client.wait_for(resource_uri)
         else:
@@ -164,4 +167,4 @@ if __name__ == "__main__":
 
     screen_names = data.load_source(filename)
     logger.info("starting with: {}".format(",".join(screen_names)))
-    fetch(client, screen_names, data.LoggingStorage())
+    fetch(client, screen_names, data.RedisStorage())
