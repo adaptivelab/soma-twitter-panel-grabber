@@ -148,7 +148,7 @@ def rate_limited(response):
 
 
 if __name__ == "__main__":
-    handler = logging.StreamHandler(sys.stdout)
+    handler = logging.FileHandler('fetch.log')
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
     try:
@@ -160,3 +160,4 @@ if __name__ == "__main__":
     screen_names = data.load_source(filename)
     logger.info("starting with: {}".format(",".join(screen_names)))
     fetch(client, screen_names, data.RedisStorage())
+    handler.close()
