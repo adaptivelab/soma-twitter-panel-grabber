@@ -62,3 +62,21 @@ def test_429_response_causes_a_wait():
     )
     flexmock(time).should_receive('sleep').with_args(11) # one extra second than reset time
     collect.fetch_profiles(client, ['test'], storage)
+
+
+def test_fetching_followers_paginates():
+    followers = range(100)
+    screen_name = 'test_user'
+    client = flexmock()
+    storage = flexmock()
+    first_set = {'ids': followers[:50], 'next_cursor': 50}
+    second_set = {'ids': followers[50:], 'next_cursor': 0}
+
+    client.should_receive('get').and_return(
+        flexmock(status_code=200, json=first_set)
+    ).and_return(
+        flexmock(status_code=200, json=second_set)
+    )
+    storage.should_receive('store_followers').with_args(screen_name, followers)
+    collect.fetch_followers_for(screen_name, client, storage)
+

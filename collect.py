@@ -86,8 +86,31 @@ def fetch_profiles(client, screen_names, storage):
             raise UnexpectedError(response.status_code, response.text)
 
 
-def fetch_followers(screen_names):
+def fetch_followers(client, screen_names):
     pass
+
+
+def fetch_followers_for(screen_name, client, storage):
+    """
+    Fetch followers for a twitter profile
+    """
+
+    followers_uri = "https://api.twitter.com/1.1/followers/ids.json"
+    cursor = -1
+    followers = []
+    while True:
+        response = client.get(followers_uri, params={'screen_name': screen_name,
+            'cursor': cursor})
+        if ok(response):
+            followers.extend(response.json['ids'])
+            cursor = response.json['next_cursor']
+            if cursor == 0:
+                break
+        elif rate_limited(response):
+            wait_for(client, followers_uri)
+        else:
+            raise UnexpectedError(response.status_code, response.text)
+    storage.store_followers(screen_name, followers)
 
 
 def fetch_friends(screen_names):
