@@ -11,8 +11,8 @@ import logging
 from collections import defaultdict
 import time
 
-import source
 import client
+import data
 
 logger = logging.getLogger('wood_panelling')
 
@@ -29,35 +29,6 @@ class UnexpectedError(Exception):
     """
     Well that was interesting…
     """
-
-
-class RedisStorage(object):
-
-    def __init__(self):
-        self.id_map = {}
-        self.follower_map = defaultdict(list)
-        self.friends_map = defaultdict(list)
-
-    def store_profile(self, profile):
-        pass
-
-    def store_followers(self, screen_name, follower_list):
-        pass
-
-    def store_friends(self, screen_name, friends_list):
-        pass
-
-
-class LoggingStorage(object):
-
-    def store_profile(self, profile):
-        logger.info("storing profile: {}".format(profile['screen_name']))
-
-    def store_followers(self, screen_name, follower_list):
-        logger.info("{} is followed by {}".format(screen_name, follower_list))
-
-    def store_friends(self, screen_name, friends_list):
-        logger.info("{} is friends with {}".format(screen_name, friends_list))
 
 
 def fetch(client, screen_names, storage):
@@ -94,7 +65,7 @@ def fetch_profiles(client, screen_names, storage):
             del screen_names[:size_limit]
             for profile in response.json:
                 storage.store_profile(profile)
-            logger.debug("fetched 100 profiles, %d left" % len(screen_names))
+            logger.debug("fetched %d profiles, %d left" % (len(clump), len(screen_names)))
         elif rate_limited(response):
             # rate limiting, need to sleep
             client.wait_for(lookup_uri)
@@ -191,8 +162,6 @@ if __name__ == "__main__":
         print("Usage: {} filename".format(sys.argv[0]))
         sys.exit(1)
 
-    screen_names = source.load_source(filename)
+    screen_names = data.load_source(filename)
     logger.info("starting with: {}".format(",".join(screen_names)))
-    #storage = RedisStorage()
-    storage = LoggingStorage()
-    fetch(client, screen_names, storage)
+    fetch(client, screen_names, data.LoggingStorage())
