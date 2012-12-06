@@ -28,12 +28,20 @@ get = partial(requests.get, auth=auth)
 post = partial(requests.post, auth=auth)
 
 
+def twitter_uri(group, method):
+    """
+    Get full uri for api endpoint
+    """
+
+    return "https://api.twitter.com/1.1/{}/{}.json".format(group, method)
+
+
 def wait_time(resource_uri):
     """
     Find out how long we need to wait before accessing a certain api endpoint
     """
 
-    ratelimit_uri = "https://api.twitter.com/1.1/application/rate_limit_status"
+    ratelimit_uri = twitter_uri('application', 'rate_limit_status')
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = get(ratelimit_uri, params={'resources': group})
     endpoint = "/%s/%s" % (group, method)

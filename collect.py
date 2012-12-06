@@ -16,14 +16,6 @@ import data
 logger = logging.getLogger('wood_panelling')
 
 
-def twitter_uri(group, method):
-    """
-    Get full uri for api endpoint
-    """
-
-    return "https://api.twitter.com/1.1/{}/{}.json".format(group, method)
-
-
 class UnexpectedError(Exception):
     """
     Well that was interesting…
@@ -53,7 +45,7 @@ def fetch_profiles(client, screen_names, storage):
     Can request 100 profiles per request and 180 requests per 15mins
     """
 
-    lookup_uri = twitter_uri('users', 'lookup')
+    lookup_uri = client.twitter_uri('users', 'lookup')
     size_limit = 100
 
     while screen_names:
@@ -88,7 +80,7 @@ def fetch_followers_for(screen_name, client, storage):
     Fetch followers for a twitter profile
     """
 
-    followers_uri = twitter_uri('followers', 'ids')
+    followers_uri = client.twitter_uri('followers', 'ids')
     fetch_cursored_collection(client, screen_name, followers_uri,
         storage.store_followers)
 
@@ -107,7 +99,7 @@ def fetch_friends_for(screen_name, client, storage):
     Fetch friends for a twitter profile
     """
 
-    friends_uri = twitter_uri('friends', 'ids')
+    friends_uri = client.twitter_uri('friends', 'ids')
     fetch_cursored_collection(client, screen_name, friends_uri,
         storage.store_friends)
 
