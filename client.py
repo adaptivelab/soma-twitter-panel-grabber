@@ -45,10 +45,13 @@ def wait_time(resource_uri):
     group, method = splitext(urlparse(resource_uri).path)[0].split('/')[-2:]
     info = get(ratelimit_uri, params={'resources': group})
     endpoint = "/%s/%s" % (group, method)
-    timestamp = info.json['resources'][group][endpoint]['reset']
-    # add 1 second to account for fractions of a
-    # second which are not returned in timestamp
-    return timestamp - int(time.time()) + 1
+    try:
+        timestamp = info.json['resources'][group][endpoint]['reset']
+        # add 1 second to account for fractions of a
+        # second which are not returned in timestamp
+        return timestamp - int(time.time()) + 1
+    except KeyError:
+        return 60
 
 
 def wait_for(resource_uri):

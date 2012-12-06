@@ -42,6 +42,19 @@ def test_sleep_until_reset_calculation_adds_one_second():
         c.wait_time('https://api.twiter.com/1.1/users/lookup.json'))
 
 
+def test_bad_rate_limit_request_sleeps_a_minute():
+    info = {
+        'errors': [
+            {'message': 'broken', 'code':42}
+        ]
+    }
+    c = flexmock(client)
+    c.should_receive('get').and_return(
+        flexmock(status_code=200, json=info))
+    assert_equal(60,
+        c.wait_time('https://api.twiter.com/1.1/users/lookup.json'))
+
+
 def test_429_response_causes_a_wait():
     reset_time = int(time.time()) + 10
     rate_info = {
