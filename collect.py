@@ -123,6 +123,8 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
             if cursor == 0:
                 break
             logger.debug('next cursor {}'.format(cursor))
+        elif not_found(response):
+            pass
         elif rate_limited(response):
             client.wait_for(resource_uri)
         else:
@@ -137,6 +139,13 @@ def ok(response):
     """
 
     return response.status_code == 200
+
+def not_found(response):
+    """
+    Response wasn't found
+    """
+
+    return response.status_code == 404
 
 
 def rate_limited(response):
