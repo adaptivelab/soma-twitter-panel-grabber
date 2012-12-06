@@ -94,6 +94,13 @@ def fetch(client, screen_names, storage):
     profiles, followers and friends adding them to the storage object
     """
 
+    args = (client, screen_names, storage)
+    profiles = multiprocessing.Process(target=fetch_profiles, args=args)
+    followers = multiprocessing.Process(target=fetch_followers, args=args)
+    friends = multiprocessing.Process(target=fetch_friends, args=args)
+    [p.start() for p in [profiles, followers, friends]]
+    [p.join() for p in [profiles, followers, friends]]
+
 
 def fetch_profiles(client, screen_names, storage):
     """
@@ -127,6 +134,9 @@ def fetch_followers(client, screen_names, storage):
     Fetch followers for all screen_names and store in storage object
     """
 
+    for screen_name in screen_names:
+        fetch_friends_for(screen_name, client, storage)
+
 
 def fetch_followers_for(screen_name, client, storage):
     """
@@ -142,6 +152,9 @@ def fetch_friends(client, screen_names, storage):
     """
     Fetch friends for all screen_names and store in storage_object
     """
+
+    for screen_name in screen_names:
+        fetch_friends_for(screen_name, client, storage)
 
 
 def fetch_friends_for(screen_name, client, storage):
