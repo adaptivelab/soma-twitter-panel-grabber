@@ -140,6 +140,7 @@ def ok(response):
 
     return response.status_code == 200
 
+
 def not_found(response):
     """
     Response wasn't found

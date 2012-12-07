@@ -10,7 +10,7 @@ import json
 import datetime
 import time
 import rfc822
-import calendar  #python's date handling is crazy
+import calendar  # python's date handling is crazy
 
 import config
 
@@ -44,6 +44,7 @@ def datestr_to_timestamp(date_str):
     timetuple = rfc822.parsedate(date_str)
     return calendar.timegm(timetuple)
 
+
 def mongo_timestamp(seconds):
     """
     return a dict that looks like a mongo json date
@@ -59,7 +60,7 @@ def mongo_timestamp(seconds):
         seconds = time.mktime(seconds.utctimetuple())
     elif isinstance(seconds, basestring):
         seconds = datestr_to_timestamp(seconds)
-    return {'$date': int(seconds*1000)}
+    return {'$date': int(seconds * 1000)}
 
 
 class RedisDataStore(object):
