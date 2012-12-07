@@ -33,7 +33,8 @@ def twitter_uri(group, method, version='1.1'):
     Get full uri for api endpoint
     """
 
-    return "https://api.twitter.com/{}/{}/{}.json".format(version, group, method)
+    return "https://api.twitter.com/{}/{}/{}.json".format(
+        version, group, method)
 
 
 def wait_time(resource_uri):
@@ -65,7 +66,6 @@ def wait_for(resource_uri):
     pause = random.uniform(60, 300)
     logger.info("waiting for an extra {} seconds".format(pause))
     time.sleep(pause)
-
 
 
 def enhance_my_calm():
