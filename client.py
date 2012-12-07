@@ -62,6 +62,8 @@ def wait_for(resource_uri):
     delay = wait_time(resource_uri)
     logger.info("rate limit for {} (delay: {})".format(resource_uri, delay))
     time.sleep(delay)
+    time.sleep(random.uniform(60, 300))
+
 
 
 def enhance_my_calm():
@@ -70,4 +72,4 @@ def enhance_my_calm():
     banned as a robot
     """
 
-    time.sleep(random.uniform(1, 5))
+    time.sleep(random.uniform(5, 60))
