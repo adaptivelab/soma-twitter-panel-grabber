@@ -8,6 +8,7 @@ import time
 import redis
 import logging
 import json
+import datetime
 
 import config
 
@@ -15,7 +16,12 @@ import config
 logger = logging.getLogger('wood_panelling')
 
 
-class RedisStorage(object):
+class RedisDataStore(object):
+    """
+    Store and read data from redis based on config
+
+    plus some helpers to get around ancient redis verion and limited api
+    """
 
     def __init__(self):
         self.db = redis.StrictRedis(
@@ -24,16 +30,51 @@ class RedisStorage(object):
             db=config.redisint('db')
         )
 
-    def key_for(self, *args):
-        return ':'.join(args)
-
     def push_list(self, key, lst):
         for id in lst:
             self.db.rpush(key, id)
 
+    def timestamp(self, key):
+        return datetime.datetime.fromtimestamp(float(self.db[key]))
+
+    def key_for(self, *args):
+        return ':'.join(args)
+
     def keys_for(self, *args):
         key = self.key_for(*args)
         return key, self.key_for(key, 'last-fetched')
+
+
+class RedisSource(RedisDataStore):
+    """
+    Read panel information from redis and shape it into
+    a format useful for SoMA
+    """
+
+    @property
+    def screen_names(self):
+        return self.db.smembers('profiles')
+
+    def profile(self, screen_name):
+        key, date_key = self.keys_for('profile', screen_name)
+        profile = json.loads(self.db[key])
+        return profile, self.timestamp(date_key)
+
+    def _collection(self, collection, screen_name):
+        key, date_key = self.keys_for(collection, screen_name)
+        return self.db.lrange(key, 0, -1), self.timestamp(date_key)
+
+    def followers(self, screen_name):
+        return self._collection('followers', screen_name)
+
+    def friends(self, screen_name):
+        return self._collection('friends', screen_name)
+
+
+class RedisStorage(RedisDataStore):
+    """
+    Store fetched twitter panel data in redis based on config
+    """
 
     def store_profile(self, profile):
         key, date_key = self.keys_for('profile', profile['screen_name'])
