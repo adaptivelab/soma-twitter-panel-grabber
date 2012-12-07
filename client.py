@@ -74,6 +74,6 @@ def enhance_my_calm():
     banned as a robot
     """
 
-    pause = random.uniform(5, 60)
+    pause = random.uniform(1, 3)
     logger.info("calming for {} seconds".format(pause))
     time.sleep(pause)
