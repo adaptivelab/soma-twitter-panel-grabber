@@ -45,7 +45,7 @@ def test_sleep_until_reset_calculation_adds_one_second():
 def test_bad_rate_limit_request_sleeps_a_minute():
     info = {
         'errors': [
-            {'message': 'broken', 'code':42}
+            {'message': 'broken', 'code': 42}
         ]
     }
     c = flexmock(client)
@@ -79,6 +79,8 @@ def test_429_response_causes_a_wait():
     )
     # one extra second than reset time
     flexmock(time).should_receive('sleep').with_args(11)
+    # and then some random time
+    flexmock(time).should_receive('sleep')
     collect.fetch_profiles(client, ['test'], storage)
 
 
