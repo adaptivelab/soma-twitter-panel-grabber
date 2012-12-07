@@ -118,7 +118,7 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
 
     cursor = -1
     result = []
-    while True:
+    while cursor != 0:
         response = client.get(resource_uri, params={'screen_name': screen_name,
             'cursor': cursor})
         client.enhance_my_calm()
