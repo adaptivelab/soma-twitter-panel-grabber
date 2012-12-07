@@ -145,7 +145,7 @@ def not_found(response):
     Response wasn't found
     """
 
-    return response.status_code == 404
+    return response.status_code in [404, 401]
 
 
 def rate_limited(response):
