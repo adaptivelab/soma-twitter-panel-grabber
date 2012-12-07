@@ -4,16 +4,62 @@ For dealing with source data for decided which twitter accounts to scrape
 
 from __future__ import unicode_literals, print_function
 
-import time
 import redis
 import logging
 import json
 import datetime
+import time
+import rfc822
+import calendar  #python's date handling is crazy
 
 import config
 
 
 logger = logging.getLogger('wood_panelling')
+
+TWITTER_KEYS = [
+    "id",
+    "name",
+    "screen_name",
+    "statuses_count",
+    "description",
+    "url",
+    "time_zone",
+    "lang",
+    "location",
+    "profile_image_url",
+    "followers_count",
+    "friends_count",
+]
+
+
+def datestr_to_timestamp(date_str):
+    """
+    parse a rfc822 date to a timestamp
+
+    >>> datestr_to_timestamp('Sat Jan 10 06:11:29 +0000 2000')
+    947484689
+    """
+
+    timetuple = rfc822.parsedate(date_str)
+    return calendar.timegm(timetuple)
+
+def mongo_timestamp(seconds):
+    """
+    return a dict that looks like a mongo json date
+
+    >>> mongo_timestamp(947484689)
+    {u'$date': 947484689000}
+    >>> mongo_timestamp(datetime.datetime(2000, 1, 10, 6, 11, 29))
+    {u'$date': 947484689000}
+    >>> mongo_timestamp('Sat Jan 10 06:11:29 +0000 2000')
+    {u'$date': 947484689000}
+    """
+    if isinstance(seconds, datetime.datetime):
+        seconds = time.mktime(seconds.utctimetuple())
+    elif isinstance(seconds, basestring):
+        seconds = datestr_to_timestamp(seconds)
+    return {'$date': int(seconds*1000)}
 
 
 class RedisDataStore(object):
@@ -69,6 +115,25 @@ class RedisSource(RedisDataStore):
 
     def friends(self, screen_name):
         return self._collection('friends', screen_name)
+
+    def panelist_info(self, screen_name):
+        profile, profile_updated = self.profile(screen_name)
+        panelist = {key: profile[key] for key in TWITTER_KEYS}
+        panelist['created_at'] = mongo_timestamp(profile['created_at'])
+        panelist['last_fetched'] = mongo_timestamp(profile_updated)
+        followers, followers_updated = self.followers(screen_name)
+        panelist['followers'] = {
+            'last_fetched': mongo_timestamp(followers_updated),
+            'ids': followers
+        }
+        friends, friends_updated = self.friends(screen_name)
+        panelist['friends'] = {
+            'last_fetched': mongo_timestamp(friends_updated),
+            'ids': friends
+        }
+        return {
+            'twitter': panelist,
+        }
 
 
 class RedisStorage(RedisDataStore):
