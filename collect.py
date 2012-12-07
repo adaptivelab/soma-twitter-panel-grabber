@@ -131,7 +131,7 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
                 break
             logger.debug('next cursor {}'.format(cursor))
         elif not_found(response):
-            pass
+            return
         elif rate_limited(response):
             client.wait_for(resource_uri)
         else:
