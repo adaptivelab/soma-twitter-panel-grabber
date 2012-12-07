@@ -31,24 +31,25 @@ class RedisStorage(object):
         for id in lst:
             self.db.rpush(key, id)
 
+    def keys_for(self, *args):
+        key = self.key_for(*args)
+        return key, self.key_for(key, 'last-fetched')
+
     def store_profile(self, profile):
-        key = self.key_for('profile', profile['screen_name'])
-        date_key = self.key_for(key, 'last-fetched')
+        key, date_key = self.keys_for('profile', profile['screen_name'])
         logger.info('storing {}'.format(key))
         self.db[key] = json.dumps(profile)
         self.db[date_key] = time.time()
         self.db.sadd('profiles', profile['screen_name'])
 
     def store_followers(self, screen_name, follower_list):
-        key = self.key_for('followers', screen_name)
-        date_key = self.key_for(key, 'last-fetched')
+        key, date_key = self.keys_for('followers', screen_name)
         logger.info('storing {} items in {}'.format(len(follower_list), key))
         self.push_list(key, follower_list)
         self.db[date_key] = time.time()
 
     def store_friends(self, screen_name, friends_list):
-        key = self.key_for('friends', screen_name)
-        date_key = self.key_for(key, 'last-fetched')
+        key, date_key = self.keys_for('friends', screen_name)
         logger.info('storing {} items in {}'.format(len(friends_list), key))
         self.push_list(key, friends_list)
         self.db[date_key] = time.time()
