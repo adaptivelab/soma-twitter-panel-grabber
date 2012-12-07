@@ -28,13 +28,19 @@ def fetch(client, screen_names, storage):
     profiles, followers and friends adding them to the storage object
     """
 
+    jobs = []
     args = (client, screen_names, storage)
     profiles = multiprocessing.Process(target=fetch_profiles, args=args)
     followers = multiprocessing.Process(target=fetch_followers, args=args)
     friends = multiprocessing.Process(target=fetch_friends, args=args)
+    jobs = [
+        profiles,
+        followers,
+        friends,
+    ]
     logger.info("starting collection")
-    [p.start() for p in [profiles, followers, friends]]
-    [p.join() for p in [profiles, followers, friends]]
+    [p.start() for p in jobs]
+    [p.join() for p in jobs]
     logger.info("finished collection")
 
 
