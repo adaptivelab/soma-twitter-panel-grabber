@@ -1,6 +1,6 @@
 # encoding: utf-8
 """
-Update a SoMA panel from a source file of panelists
+Fetch twitter data for a SoMA panel from a source file of panelists
 """
 
 from __future__ import unicode_literals, print_function
