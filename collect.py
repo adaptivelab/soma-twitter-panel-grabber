@@ -121,6 +121,7 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
     while True:
         response = client.get(resource_uri, params={'screen_name': screen_name,
             'cursor': cursor})
+        client.enhance_my_calm()
         if ok(response):
             logger.debug('fetched {} ids from {}'.format(
                 len(response.json['ids']), resource_uri))
@@ -135,7 +136,6 @@ def fetch_cursored_collection(client, screen_name, resource_uri, storage_func):
             client.wait_for(resource_uri)
         else:
             raise UnexpectedError(response.status_code, response.text)
-        client.enhance_my_calm()
     storage_func(screen_name, result)
 
 
