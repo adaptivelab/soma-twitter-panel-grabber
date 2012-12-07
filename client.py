@@ -28,12 +28,12 @@ get = partial(requests.get, auth=auth)
 post = partial(requests.post, auth=auth)
 
 
-def twitter_uri(group, method):
+def twitter_uri(group, method, version='1.1'):
     """
     Get full uri for api endpoint
     """
 
-    return "https://api.twitter.com/1.1/{}/{}.json".format(group, method)
+    return "https://api.twitter.com/{}/{}/{}.json".format(version, group, method)
 
 
 def wait_time(resource_uri):
