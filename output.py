@@ -11,21 +11,17 @@ import json
 import data
 
 
-def panelist_info(rs):
+def panelist_info(rs, screen_name, missing_info):
     """
     Collect the panelist info from redis
     adding screen_name to a missing set if there is a keyerror
     """
 
-    missing_info = set()
-    data = []
-    for screen_name in rs.screen_names:
-        try:
-            info = rs.panelist_info(screen_name)
-            data.append(info)
-        except KeyError:
-            missing_info.add(screen_name)
-    return data, missing_info
+    try:
+        info = rs.panelist_info(screen_name)
+    except KeyError:
+        missing_info.add(screen_name)
+    return json.dumps(info)
 
 
 def export_to_json(filename, missing):
@@ -35,9 +31,11 @@ def export_to_json(filename, missing):
     """
 
     rs = data.RedisSource()
-    panelists, missing_info = panelist_info(rs)
+    missing_info = set()
     with open(filename, 'w') as io:
-        io.write(json.dumps(panelists, indent=2))
+        for screen_name in rs.screen_names:
+            io.write(panelist_info(rs, screen_name, missing_info))
+            io.write("\n")
     if missing_info:
         print("missing info for {}".format(len(missing_info)))
         with open(missing, 'w') as io:
