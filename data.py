@@ -85,7 +85,7 @@ class RedisDataStore(object):
         return datetime.datetime.fromtimestamp(float(self.db[key]))
 
     def key_for(self, *args):
-        return ':'.join(args)
+        return ':'.join(s.lower() for s in args)
 
     def keys_for(self, *args):
         key = self.key_for(*args)
