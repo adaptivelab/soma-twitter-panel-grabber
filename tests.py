@@ -26,6 +26,27 @@ def test_collection_of_profile_information():
     collect.fetch_profiles(client, ['alice', 'bob'], storage)
 
 
+def test_collection_of_profile_requests_up_rate_limit():
+    lookup_uri = 'https://api.twitter.com/1.1/users/lookup.json'
+    user_lookup = [
+        {'id': '1234', 'screen_name': 'alice'},
+        {'id': '4321', 'screen_name': 'bob'}
+    ]
+    names = ["tw_%d" % i for i in range(200)]
+    client = client_mock()
+    client.should_receive('get').with_args(lookup_uri,
+        params={'screen_name': ",".join(names[:100])}).and_return(
+            flexmock(status_code=200, json=user_lookup))
+    client.should_receive('get').with_args(lookup_uri,
+        params={'screen_name': ",".join(names[100:180])}).and_return(
+            flexmock(status_code=200, json=user_lookup))
+    client.should_receive('get').with_args(lookup_uri,
+        params={'screen_name': ",".join(names[180:])}).and_return(
+            flexmock(status_code=200, json=user_lookup))
+    storage = flexmock()
+    storage.should_receive('store_profile')
+    collect.fetch_profiles(client, names, storage)
+
 def test_sleep_until_reset_calculation_adds_one_second():
     reset_time = int(time.time()) + (4 * 60)
     info = {

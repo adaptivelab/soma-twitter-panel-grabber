@@ -48,13 +48,18 @@ def fetch_profiles(client, screen_names, storage):
     """
     Fetch twitter profile information for screen_names and add them to storage
 
-    Can request 100 profiles per request and 180 requests per 15mins
+    Can request 100 profiles per request and 180 profiles per 15mins,
+    hence the swapping of request sizes for 100, 80
     """
 
     lookup_uri = client.twitter_uri('users', 'lookup')
-    size_limit = 100
+    rate_limit = 180
 
     while screen_names:
+        if rate_limit > 100:
+            size_limit, rate_limit = 100, rate_limit - 100
+        else:
+            size_limit = rate_limit
         clump = screen_names[:size_limit]
         response = client.get(lookup_uri,
             params={'screen_name': ",".join(clump)})
@@ -70,6 +75,7 @@ def fetch_profiles(client, screen_names, storage):
         elif rate_limited(response):
             # rate limiting, need to sleep
             client.wait_for(lookup_uri)
+            rate_limit = 180
         else:
             raise UnexpectedError(response.status_code, response.text)
         client.enhance_my_calm()
