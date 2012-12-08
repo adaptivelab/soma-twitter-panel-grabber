@@ -16,6 +16,8 @@ from requests.auth import OAuth1
 import config
 
 
+requests.defaults.defaults['max_retries'] = 2
+
 logger = logging.getLogger('wood_panelling')
 
 auth = OAuth1(client_key=config.twitter('consumer_key'),
