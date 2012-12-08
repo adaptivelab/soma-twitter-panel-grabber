@@ -47,6 +47,7 @@ def test_collection_of_profile_requests_up_rate_limit():
     storage.should_receive('store_profile')
     collect.fetch_profiles(client, names, storage)
 
+
 def test_sleep_until_reset_calculation_adds_one_second():
     reset_time = int(time.time()) + (4 * 60)
     info = {
