@@ -70,24 +70,49 @@ class RedisDataStore(object):
     plus some helpers to get around ancient redis verion and limited api
     """
 
-    def __init__(self):
-        self.db = redis.StrictRedis(
-            host=config.redis('host'),
-            port=config.redisint('port'),
-            db=config.redisint('db')
-        )
+    def __init__(self, db=None):
+        if db:
+            self.db = db
+        else:
+            self.db = redis.StrictRedis(
+                host=config.redis('host'),
+                port=config.redisint('port'),
+                db=config.redisint('db')
+            )
 
     def push_list(self, key, lst):
         for id in lst:
             self.db.rpush(key, id)
 
     def timestamp(self, key):
+        """
+        >>> rs = RedisDataStore({'ts': '1355014569.600932'})
+        >>> rs.timestamp('ts')
+        datetime.datetime(2012, 12, 9, 0, 56, 9, 600932)
+        """
+
         return datetime.datetime.fromtimestamp(float(self.db[key]))
 
     def key_for(self, *args):
+        """
+        Generate a keyname
+
+        >>> rs = RedisDataStore()
+        >>> rs.key_for('one', 'two')
+        u'one:two'
+        """
+
         return ':'.join(s.lower() for s in args)
 
     def keys_for(self, *args):
+        """
+        Generate key and date key together
+
+        >>> rs = RedisDataStore()
+        >>> rs.keys_for('one', 'two')
+        (u'one:two', u'one:two:last-fetched')
+        """
+
         key = self.key_for(*args)
         return key, self.key_for(key, 'last-fetched')
 
