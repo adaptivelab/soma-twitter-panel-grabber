@@ -19,9 +19,9 @@ def panelist_info(rs, screen_name, missing_info):
 
     try:
         info = rs.panelist_info(screen_name)
+        return json.dumps(info)
     except KeyError:
         missing_info.add(screen_name)
-    return json.dumps(info)
 
 
 def export_to_json(filename, missing):
@@ -34,8 +34,10 @@ def export_to_json(filename, missing):
     missing_info = set()
     with open(filename, 'w') as io:
         for screen_name in rs.screen_names:
-            io.write(panelist_info(rs, screen_name, missing_info))
-            io.write("\n")
+            info = panelist_info(rs, screen_name, missing_info)
+            if info:
+                io.write(info)
+                io.write("\n")
     if missing_info:
         print("missing info for {}".format(len(missing_info)))
         with open(missing, 'w') as io:
