@@ -11,6 +11,7 @@ import datetime
 import time
 import rfc822
 import calendar  # python's date handling is crazy
+import requests
 
 import config
 
@@ -61,6 +62,16 @@ def mongo_timestamp(seconds):
     elif isinstance(seconds, basestring):
         seconds = datestr_to_timestamp(seconds)
     return {'$date': int(seconds * 1000)}
+
+
+def panoptic_data(yougov_id):
+    panoptic_url = "http://beta.pulse.yougov.com/panoptic/memberships/%s/profile" % yougov_id
+    auth = ('pulse', 'banana')
+    response = json.loads(requests.get(panoptic_url, auth=auth).content)
+    if 'body' in response:
+        data = response['body']
+        data['last_fetched'] = mongo_timestamp(datetime.datetime.utcnow())
+        return data
 
 
 class RedisDataStore(object):
