@@ -43,8 +43,22 @@ twitter account
 
     python collect.py list-of-twitter-names.txt
 
+Outputing results
+-----------------
+
 output.py will write out lines of json represening the panelist info for SoMA and
 also write out a list of twitter names where it couldn't collect some of the data
+it needs a mapping of twitter screen names to yougov panelist ids (a previous
+panel_default.json will suffice or a csv of [screen_name, id] rows)
 
-    python output.py panel.json missing-names.txt
+    python output.py panel.json mapping_for_yougov_id.[csv,json] missing-names.txt
 
+This uses the panoptic proxy provided by beta.pulse.yougov.com, access to the us panoptic
+is trickier at the moment.
+
+open an ssh connection to the alab-pulse1 machine and set up a socks proxy to port 8050
+
+    # connect to yougov vpn and then set up this proxy
+    ssh -ND 8050 username@alab-pulse1
+    # in another terminal
+    python us_output.py us_panel.json mapping_for_yougov_id.csv missing-us-names.txt
