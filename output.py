@@ -13,6 +13,10 @@ import data
 
 
 class YouGovIDMapJSON(dict):
+    """
+    Lookup YouGov panelist id from twitter name from
+    panel_default.json type file
+    """
 
     def __init__(self, filename):
         with open(filename) as f:
@@ -24,6 +28,10 @@ class YouGovIDMapJSON(dict):
 
 
 class YouGovIDMapCSV(dict):
+    """
+    Lookup YouGov panelist id from twitter name from
+    csv file of [screen_name, id]
+    """
 
     def __init__(self, filename):
         with open(filename) as f:
@@ -85,7 +93,8 @@ if __name__ == "__main__":
     try:
         filename, idmapname, missingname = sys.argv[1:]
     except KeyError:
-        print("Usage: {} filename yougovid.[json,csv] missingname".format(sys.argv[0]))
+        print("Usage: {} filename yougovid.[json,csv] missingname".format(
+            sys.argv[0]))
         sys.exit(1)
 
     export_to_json(filename, yougov_idmap(idmapname), missingname)
