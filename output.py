@@ -53,7 +53,7 @@ def panelist_info(rs, screen_name, idmap, missing_info):
         if screen_name.lower() in idmap:
             yougov_id = idmap[screen_name.lower()]
             info['yougov'] = {'id': yougov_id}
-            panoptic = data.panoptic_data(yougov_id)
+            panoptic = data.us_panoptic_data(yougov_id)
             if panoptic:
                 info['panoptic'] = panoptic
         return json.dumps(info)

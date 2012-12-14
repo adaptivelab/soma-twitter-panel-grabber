@@ -12,6 +12,7 @@ import time
 import rfc822
 import calendar  # python's date handling is crazy
 import requests
+import os
 
 import config
 
@@ -72,6 +73,23 @@ def panoptic_data(yougov_id):
         data = response['body']
         data['last_fetched'] = mongo_timestamp(datetime.datetime.utcnow())
         return data
+
+
+def us_panoptic_data(yougov_id):
+    """
+    this is awful never use it:
+
+    requires a ssh socks proxy on port localhost:8050 connecting to the soma-pulse machine
+    eg. ssh -ND 8050 soma-pulse-machine
+
+    """
+    raw_response = os.popen('curl -s --insecure --socks5 localhost:8050 -H"Host: panoptic.paix.yougov.net" https://10.132.4.120/memberships/%s/profile/' % yougov_id).read()
+    response = json.loads(raw_response)
+    if 'body' in response:
+        data = response['body']
+        data['last_fetched'] = mongo_timestamp(datetime.datetime.utcnow())
+        return data
+
 
 
 class RedisDataStore(object):
