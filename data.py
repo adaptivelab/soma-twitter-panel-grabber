@@ -134,7 +134,7 @@ class RedisSource(RedisDataStore):
 
     def _collection(self, collection, screen_name):
         key, date_key = self.keys_for(collection, screen_name)
-        return self.db.lrange(key, 0, -1), self.timestamp(date_key)
+        return list(set(self.db.lrange(key, 0, -1))), self.timestamp(date_key)
 
     def followers(self, screen_name):
         return self._collection('followers', screen_name)
