@@ -5,6 +5,9 @@ A tool for fetching twitter profile, follower and friend info for SoMA
 
 currently requires a redis database to write it's intermediate results too
 
+TODO: turn this into a process that requires less manual intervention so that
+panelist data can be continuously updated
+
 Installation
 ------------
 
