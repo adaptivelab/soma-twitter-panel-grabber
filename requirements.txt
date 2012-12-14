@@ -5,3 +5,4 @@ oauth2==1.5.211
 redis==2.7.2
 requests==0.14.2
 wsgiref==0.1.2
+CouchDB==0.8
